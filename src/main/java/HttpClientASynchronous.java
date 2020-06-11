@@ -1,69 +1,64 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.Request;
+import domain.Response;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
-import java.net.http.HttpRequest.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.io.IOException;
-import domain.Requestss;
-import domain.Room;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class HttpClientASynchronous {
 
     private static HttpClient client = HttpClient.newHttpClient();
     private static ObjectMapper objectMapper = new ObjectMapper();
+
     public static void main(String[] args) throws Exception {
 
         client = HttpClient.newHttpClient();
-        String url = "http://httpbin.org/get";
 
-        // final Requestss request = Requestss.builder().origin("112.196.145.87").url("http://httpbin.org/post").build();
-        final Requestss request = Requestss.builder().price(3455).roomNumber("456").build();
+            //GET Request
+            final String url = "http://httpbin.org/get";
+            getStringHttpResponse(url).thenAccept(response -> {
+                final Response responseInObject = getResponseInObject(response, Response.class);
+                System.out.println("Get Response: " + responseInObject);
+            });
 
- /*       //Get Requestss
-        getStringHttpResponse(url)
-                .thenAccept(s -> System.out.println("get response: " + s)); */
+            //POST request
+            final String postUrl = "http://httpbin.org/post";
+            final String postRequest = getRequestBodyAsString(postUrl);
+            postMethod("http://httpbin.org/post", postRequest).thenAccept(response -> {
+                final Response responseInObject = getResponseInObject(response, Response.class);
+                System.out.println("Post Response: " + responseInObject);
+            });
 
-        //Post request
-        //try {
-        System.out.println("ss: " + request);
-        try {
-            String s = objectMapper.writeValueAsString(request);
-            System.out.println("requeste " + s);
+            //PUT request
+            final String putUrl = "http://httpbin.org/put";
+            final String putRequest = getRequestBodyAsString(putUrl);
+            putMethod(putUrl, putRequest).thenAccept(response -> {
+                final Response responseInObject = getResponseInObject(response, Response.class);
+                System.out.println("Put Response: " + responseInObject);
+            });
 
-        postMethod("http://localhost:8080/services/roomservice/api/rooms", s)
-                .thenAccept(jsonString -> {
-                    System.out.println("post response1323: " + jsonString);
-                    try {
-                        Room response = new ObjectMapper().readValue(jsonString, Room.class);
-                        System.out.println("response: " + response);
-                    } catch (JsonProcessingException e) {
-                        System.out.println("exception " + e);
-                        throw new RuntimeException("error");
-                    }
-                }).exceptionally(exception -> {
+            //PATCH request
+            final String patchUrl = "http://httpbin.org/patch";
+            final String patchRequest = getRequestBodyAsString(patchUrl);
+            patchMethod(patchUrl, patchRequest).thenAccept(response -> {
+                final Response responseInObject = getResponseInObject(response, Response.class);
+                System.out.println("Patch Response: " + responseInObject);
+            });
 
-            System.out.println("exception " + exception);
-            throw new RuntimeException("error");
-        });
-    }  catch(JsonProcessingException e) {
-            System.out.println("exception " + e);
-            throw new RuntimeException("error");
-        }
-        //PAtch request
- /*         patchMethod("http://httpbin.org/patch")
-                .thenAccept(s -> System.out.println("put response: " + s));
-      List<URI> ui = new ArrayList();
-        ui.add(URI.create(url));
-        ui.add(URI.create(url));
-        getURIs(ui);*/
+            //DELETE request
+            deleteMethod("http://httpbin.org/delete").thenAccept(response -> {
+                final Response responseInObject = getResponseInObject(response, Response.class);
+                System.out.println("Delete Response: " + responseInObject);
+            });
+
         Thread.sleep(1000);
-        System.out.println("output: " );
     }
+
 
     private static CompletableFuture<String> getStringHttpResponse(final String url) throws Exception {
 
@@ -77,52 +72,64 @@ public class HttpClientASynchronous {
 
     private static CompletableFuture<String> postMethod(final String postUrl, final String requestBody) throws Exception {
 
-      HttpRequest request = HttpRequest.newBuilder(URI.create(postUrl))
-              .header("Content-Type", "application/json")
-              .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOLFJPTEVfVVNFUiIsImV4cCI6MTU5MTYyNjI1MH0.mTp7p1V4i9teNWmy1IAM_Jq5pVexaGCFjz6cxGsUKk8p6dVIsGeDQxj3N3KTyrbKYe6JGwHZw335Q5Y4W5Y1zA")
-              .POST(BodyPublishers.ofString(requestBody))
-              .build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(postUrl))
+                .header("Content-Type", "application/json")
+                .POST(BodyPublishers.ofString(requestBody))
+                .build();
         CompletableFuture<String> stringCompletableFuture = client
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body);
-        System.out.println("post " + request);
-        System.out.println("stringCompletableFuture " + stringCompletableFuture);
+
         return stringCompletableFuture;
-  }
+    }
 
-  private static CompletableFuture<String> patchMethod(final String patchUrl) throws Exception {
+    private static CompletableFuture<String> putMethod(final String putUrl, final String requestBody) throws Exception {
 
-      HttpRequest request = HttpRequest.newBuilder(URI.create(patchUrl))
-              .header("Content-Type", "application/json")
-              .method("PATCH", BodyPublishers.ofString("{\n" +
-                      " \n" +
-                      "  \"json\": null,\n" +
-                      "  \"origin\": \"112.196.145.87\",\n" +
-                      "  \"url\": \"http://httpbin.org/patch\"\n" +
-                      "}"))
-              .build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(putUrl))
+                .header("Content-Type", "application/json")
+                .PUT(BodyPublishers.ofString(requestBody))
+                .build();
 
-      System.out.println("request " + request);
+        return client
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body);
 
-      return client
-              .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-               .thenApply(HttpResponse::body);
-  }
+    }
 
-    public static void getURIs(List<URI> uris) throws IOException {
-        HttpClient client = HttpClient.newHttpClient();
-        List<HttpRequest> requests = uris.stream()
-                .map(HttpRequest::newBuilder)
-                .map(reqBuilder -> reqBuilder.build())
-                .collect(Collectors.toList());
+    private static CompletableFuture<String> patchMethod(final String patchUrl, final String requestBody) throws Exception {
 
-/*        List<CompletableFuture<String>> futures = new ArrayList();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(patchUrl))
+                .header("Content-Type", "application/json")
+                .method("PATCH", BodyPublishers.ofString(requestBody))
+                .build();
 
-        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(requests.stream()
-                .map(request -> client.sendAsync(request, HttpResponse.BodyHandlers.ofString()))
-                .toArray(CompletableFuture<?>[]::new));
+        return client
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body);
+    }
 
-        voidCompletableFuture.theAccept( ignored -> s.stream() .map(CompletableFuture::join)
-                .filter(Optional::isPresent).forEach(p -> System.out.println("p " + p)));*/
+    private static CompletableFuture<String> deleteMethod(final String deleteUrl) throws Exception {
+
+        HttpRequest request = HttpRequest.newBuilder(URI.create(deleteUrl))
+                .header("Content-Type", "application/json")
+                .DELETE()
+                .build();
+
+        return client
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    private static <T> T getResponseInObject(final String response, final Class<T> clazz) {
+        try {
+            return new ObjectMapper().readValue(response, clazz);
+        } catch (JsonProcessingException e) {
+            System.out.println("exception " + e);
+            throw new RuntimeException("error");
+        }
+    }
+
+    private static String getRequestBodyAsString(final String url) throws JsonProcessingException {
+        Request putRequest = Request.builder().origin("112.196.145.87").url(url).build();
+        return objectMapper.writeValueAsString(putRequest);
     }
 }
