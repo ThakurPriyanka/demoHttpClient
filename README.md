@@ -1,12 +1,12 @@
 #Java HTTP Client
 This repository talks about the java 11 HTTP client we will see the synchronous and ayschronous call of http client.
 
-Prerequisites
+###Prerequisites
 Java Development Kit (JDK), version 11 or higher.
 
 Maven
 
-Getting the Project
+###Getting the Project
 
 Steps to start the project
 There are two main classes in the project. 

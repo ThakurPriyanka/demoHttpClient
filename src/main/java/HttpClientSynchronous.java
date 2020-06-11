@@ -22,33 +22,33 @@ public class HttpClientSynchronous {
 
         try {
 
-            //GET Request
+            // GET Request
             final String getResponseBody = getStringHttpResponse(url).body();
             final Response getResponse = new ObjectMapper().readValue(getResponseBody, Response.class);
             System.out.println("get response: " + getResponse);
 
-            //POST request
+            // POST request
             final String postUrl = "http://httpbin.org/post";
             final String postRequest = getRequestBodyAsString(postUrl);
             final String postResponseBody = postMethod("http://httpbin.org/post", postRequest).body();
             final Response postResponse = new ObjectMapper().readValue(postResponseBody, Response.class);
             System.out.println("post response: " + postResponse);
 
-            //PUT request
+            // PUT request
             final String putUrl = "http://httpbin.org/put";
             final String putRequest = getRequestBodyAsString(putUrl);
             final String putResponseBody = putMethod(putUrl, putRequest).body();
             final Response putResponse = new ObjectMapper().readValue(putResponseBody, Response.class);
             System.out.println("put response: " + putResponse);
 
-            //PATCH request
+            // PATCH request
             final String patchUrl = "http://httpbin.org/patch";
             final String patchRequest = getRequestBodyAsString(patchUrl);
             final String patchResponseBody = patchMethod(patchUrl, patchRequest).body();
             final Response patchResponse = new ObjectMapper().readValue(patchResponseBody, Response.class);
             System.out.println("patch response: " + patchResponse);
 
-            //DELETE request
+            // DELETE request
             System.out.println("delete response: " + deleteMethod("http://httpbin.org/delete").body());
 
         }  catch (JsonProcessingException e) {
