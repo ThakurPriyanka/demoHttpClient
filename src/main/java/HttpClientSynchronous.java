@@ -1,36 +1,62 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import domain.Request;
+import domain.Response;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HttpClientSynchronous {
     private static HttpClient client;
-
+    private static ObjectMapper objectMapper = new ObjectMapper();
     public static void main(String[] args) throws Exception {
 
         client = HttpClient.newHttpClient();
-        String url = "http://httpbin.org/get";
+        final String url = "http://httpbin.org/get";
 
-        //GET Requestss
-        System.out.println("get response: " + getStringHttpResponse(url).body());
+        try {
 
-        //POST request
-        System.out.println("post response: " + postMethod("http://httpbin.org/post").body());
+            //GET Request
+            final String getResponseBody = getStringHttpResponse(url).body();
+            final Response getResponse = new ObjectMapper().readValue(getResponseBody, Response.class);
+            System.out.println("get response: " + getResponse);
 
-        //PUT request
-        System.out.println("put response: " + putMethod("http://httpbin.org/put").body());
+            //POST request
+            final String postUrl = "http://httpbin.org/post";
+            final String postRequest = getRequestBodyAsString(postUrl);
+            final String postResponseBody = postMethod("http://httpbin.org/post", postRequest).body();
+            final Response postResponse = new ObjectMapper().readValue(postResponseBody, Response.class);
+            System.out.println("post response: " + postResponse);
 
-        //PATCH request
-        System.out.println("patch response: " + patchMethod("http://httpbin.org/patch").body());
+            //PUT request
+            final String putUrl = "http://httpbin.org/put";
+            final String putRequest = getRequestBodyAsString(putUrl);
+            final String putResponseBody = putMethod(putUrl, putRequest).body();
+            final Response putResponse = new ObjectMapper().readValue(putResponseBody, Response.class);
+            System.out.println("put response: " + putResponse);
 
-        //DELETE request
-        System.out.println("delete response: " + deleteMethod("http://httpbin.org/delete").body());
+            //PATCH request
+            final String patchUrl = "http://httpbin.org/patch";
+            final String patchRequest = getRequestBodyAsString(patchUrl);
+            final String patchResponseBody = patchMethod(patchUrl, patchRequest).body();
+            final Response patchResponse = new ObjectMapper().readValue(patchResponseBody, Response.class);
+            System.out.println("patch response: " + patchResponse);
+
+            //DELETE request
+            System.out.println("delete response: " + deleteMethod("http://httpbin.org/delete").body());
+
+        }  catch (JsonProcessingException e) {
+            System.out.println("exception " + e);
+            throw new RuntimeException("error");
+        } catch(Exception e) {
+            System.out.println("Exception: " + e);
+        }
 
         // Multiple request
         List<URI> ui = new ArrayList();
@@ -39,8 +65,14 @@ public class HttpClientSynchronous {
         System.out.println("multiple request: ");
         getURIs(ui);
 
-        Thread.sleep(1000);
+        Thread.sleep(10000);
         System.out.println("output: ");
+
+    }
+
+    private static String getRequestBodyAsString(final String url) throws JsonProcessingException {
+        Request putRequest = Request.builder().origin("112.196.145.87").url(url).build();
+        return objectMapper.writeValueAsString(putRequest);
     }
 
     private static HttpResponse<String> getStringHttpResponse(final String url) throws Exception {
@@ -53,34 +85,24 @@ public class HttpClientSynchronous {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private static HttpResponse<String> postMethod(final String postUrl) throws Exception {
+    private static HttpResponse<String> postMethod(final String postUrl, final String requestBody) throws Exception {
 
         HttpRequest request = HttpRequest.newBuilder(URI.create(postUrl))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString("{\n" +
-                        " \n" +
-                        "  \"json\": null,\n" +
-                        "  \"origin\": \"112.196.145.87\",\n" +
-                        "  \"url\": \"http://httpbin.org/post\"\n" +
-                        "}"))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
         return client
                 .send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private static HttpResponse<String> patchMethod(final String patchUrl) throws Exception {
+    private static HttpResponse<String> patchMethod(final String patchUrl, final String requestBody) throws Exception {
 
         // There is no direct method for PATCH so we use the method() in which first arguement
         // is the URL method that we should provide in the ALL CAPS. Second argument in is BODY.
         HttpRequest request = HttpRequest.newBuilder(URI.create(patchUrl))
                 .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString("{\n" +
-                        " \n" +
-                        "  \"json\": null,\n" +
-                        "  \"origin\": \"112.196.145.87\",\n" +
-                        "  \"url\": \"http://httpbin.org/post\"\n" +
-                        "}"))
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
         return client
@@ -99,16 +121,11 @@ public class HttpClientSynchronous {
                 .send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private static HttpResponse<String> putMethod(final String putUrl) throws Exception {
+    private static HttpResponse<String> putMethod(final String putUrl, final String requestBody) throws Exception {
 
         HttpRequest request = HttpRequest.newBuilder(URI.create(putUrl))
                 .header("Content-Type", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString("{\n" +
-                        " \n" +
-                        "  \"json\": null,\n" +
-                        "  \"origin\": \"112.196.145.87\",\n" +
-                        "  \"url\": \"http://httpbin.org/post\"\n" +
-                        "}"))
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
         return client
