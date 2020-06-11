@@ -17,7 +17,7 @@ public class HttpClientASynchronous {
 
     public static void main(String[] args) throws Exception {
 
-        client = HttpClient.newHttpClient();
+        //client = HttpClient.newHttpClient();
 
             //GET Request
             final String url = "http://httpbin.org/get";
@@ -55,7 +55,7 @@ public class HttpClientASynchronous {
                 final Response responseInObject = getResponseInObject(response, Response.class);
                 System.out.println("Delete Response: " + responseInObject);
             });
-
+        //If you are not able to see the time please increase the sleep timeout time.
         Thread.sleep(1000);
     }
 

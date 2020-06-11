@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class HttpClientSynchronous {
+
     private static HttpClient client;
     private static ObjectMapper objectMapper = new ObjectMapper();
+
     public static void main(String[] args) throws Exception {
 
         client = HttpClient.newHttpClient();
@@ -64,9 +66,6 @@ public class HttpClientSynchronous {
         ui.add(URI.create(url));
         System.out.println("multiple request: ");
         getURIs(ui);
-
-        Thread.sleep(10000);
-        System.out.println("output: ");
 
     }
 
@@ -139,7 +138,7 @@ public class HttpClientSynchronous {
     }
 
     public static void getURIs(List<URI> uris) throws IOException {
-        HttpClient client = HttpClient.newHttpClient();
+
         List<HttpRequest> requests = uris.stream()
                 .map(HttpRequest::newBuilder)
                 .map(reqBuilder -> reqBuilder.build())
