@@ -24,28 +24,28 @@ public class HttpClientSynchronous {
 
             // GET Request
             final String getResponseBody = getStringHttpResponse(url).body();
-            final Response getResponse = new ObjectMapper().readValue(getResponseBody, Response.class);
+            final Response getResponse = getResponseObject(getResponseBody, Response.class);
             System.out.println("get response: " + getResponse);
 
             // POST request
             final String postUrl = "http://httpbin.org/post";
             final String postRequest = getRequestBodyAsString(postUrl);
             final String postResponseBody = postMethod("http://httpbin.org/post", postRequest).body();
-            final Response postResponse = new ObjectMapper().readValue(postResponseBody, Response.class);
+            final Response postResponse = getResponseObject(postResponseBody, Response.class);
             System.out.println("post response: " + postResponse);
 
             // PUT request
             final String putUrl = "http://httpbin.org/put";
             final String putRequest = getRequestBodyAsString(putUrl);
             final String putResponseBody = putMethod(putUrl, putRequest).body();
-            final Response putResponse = new ObjectMapper().readValue(putResponseBody, Response.class);
+            final Response putResponse = getResponseObject(putResponseBody, Response.class);
             System.out.println("put response: " + putResponse);
 
             // PATCH request
             final String patchUrl = "http://httpbin.org/patch";
             final String patchRequest = getRequestBodyAsString(patchUrl);
             final String patchResponseBody = patchMethod(patchUrl, patchRequest).body();
-            final Response patchResponse = new ObjectMapper().readValue(patchResponseBody, Response.class);
+            final Response patchResponse = getResponseObject(patchResponseBody, Response.class);
             System.out.println("patch response: " + patchResponse);
 
             // DELETE request
@@ -68,6 +68,11 @@ public class HttpClientSynchronous {
         Thread.sleep(10000);
         System.out.println("output: ");
 
+    }
+
+    private static <T> T getResponseObject(final String getResponseBody,final Class<T> clazz)
+            throws JsonProcessingException {
+        return objectMapper.readValue(getResponseBody, clazz);
     }
 
     private static String getRequestBodyAsString(final String url) throws JsonProcessingException {
