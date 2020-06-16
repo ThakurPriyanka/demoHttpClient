@@ -1,6 +1,5 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import domain.Request;
+import common.Constants;
+import common.Utils;
 import domain.Response;
 
 import java.net.URI;
@@ -13,48 +12,44 @@ import java.util.concurrent.CompletableFuture;
 public class HttpClientASynchronous {
 
     private static HttpClient client = HttpClient.newHttpClient();
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public static void main(String[] args) throws Exception {
 
-            //GET Request
-            final String url = "http://httpbin.org/get";
-            getStringHttpResponse(url).thenAccept(response -> {
-                final Response responseInObject = getResponseInObject(response, Response.class);
-                System.out.println("Get Response: " + responseInObject);
-            });
+        // GET_URL Request
+        getStringHttpResponse(Constants.GET_URL).thenAccept(response -> {
+            final Response responseInObject = Utils.getResponseInObject(response, Response.class);
+            System.out.println("Get Response: " + responseInObject);
+        });
 
-            //POST request
-            final String postUrl = "http://httpbin.org/post";
-            final String postRequest = getRequestBodyAsString(postUrl);
-            postMethod("http://httpbin.org/post", postRequest).thenAccept(response -> {
-                final Response responseInObject = getResponseInObject(response, Response.class);
-                System.out.println("Post Response: " + responseInObject);
-            });
+        // POST request
+        final String postRequest = Utils.getRequestBodyAsString(Constants.POST_URL);
+        postMethod("http://httpbin.org/post", postRequest).thenAccept(response -> {
+            final Response responseInObject = Utils.getResponseInObject(response, Response.class);
+            System.out.println("Post Response: " + responseInObject);
+        });
 
-            //PUT request
-            final String putUrl = "http://httpbin.org/put";
-            final String putRequest = getRequestBodyAsString(putUrl);
-            putMethod(putUrl, putRequest).thenAccept(response -> {
-                final Response responseInObject = getResponseInObject(response, Response.class);
-                System.out.println("Put Response: " + responseInObject);
-            });
+        // PUT request
+        final String putRequest = Utils.getRequestBodyAsString(Constants.PUT_URL);
+        putMethod(Constants.PUT_URL, putRequest).thenAccept(response -> {
+            final Response responseInObject = Utils.getResponseInObject(response, Response.class);
+            System.out.println("Put Response: " + responseInObject);
+        });
 
-            //PATCH request
-            final String patchUrl = "http://httpbin.org/patch";
-            final String patchRequest = getRequestBodyAsString(patchUrl);
-            patchMethod(patchUrl, patchRequest).thenAccept(response -> {
-                final Response responseInObject = getResponseInObject(response, Response.class);
-                System.out.println("Patch Response: " + responseInObject);
-            });
+        // PATCH request
+        final String patchRequest = Utils.getRequestBodyAsString(Constants.PATCH_URL);
+        patchMethod(Constants.PATCH_URL, patchRequest).thenAccept(response -> {
+            final Response responseInObject = Utils.getResponseInObject(response, Response.class);
+            System.out.println("Patch Response: " + responseInObject);
+        });
 
-            //DELETE request
-            deleteMethod("http://httpbin.org/delete").thenAccept(response -> {
-                final Response responseInObject = getResponseInObject(response, Response.class);
-                System.out.println("Delete Response: " + responseInObject);
-            });
-        //If you are not able to see the time please increase the sleep timeout time.
-        Thread.sleep(1000);
+        // DELETE request
+        deleteMethod(Constants.DELETE_URL).thenAccept(response -> {
+            final Response responseInObject = Utils.getResponseInObject(response, Response.class);
+            System.out.println("Delete Response: " + responseInObject);
+        });
+
+        // If you are not able to see the time please increase the sleep timeout time.
+        Thread.sleep(Constants.TIMEOUT_IN_MILI_SECONF);
     }
 
 
@@ -98,7 +93,7 @@ public class HttpClientASynchronous {
 
         HttpRequest request = HttpRequest.newBuilder(URI.create(patchUrl))
                 .header("Content-Type", "application/json")
-                .method("PATCH", BodyPublishers.ofString(requestBody))
+                .method(Constants.PATCH_METHOD, BodyPublishers.ofString(requestBody))
                 .build();
 
         return client
@@ -115,19 +110,5 @@ public class HttpClientASynchronous {
 
         return client
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
-    }
-
-    private static <T> T getResponseInObject(final String response, final Class<T> clazz) {
-        try {
-            return new ObjectMapper().readValue(response, clazz);
-        } catch (JsonProcessingException e) {
-            System.out.println("exception " + e);
-            throw new RuntimeException("error");
-        }
-    }
-
-    private static String getRequestBodyAsString(final String url) throws JsonProcessingException {
-        Request putRequest = Request.builder().origin("112.196.145.87").url(url).build();
-        return objectMapper.writeValueAsString(putRequest);
     }
 }

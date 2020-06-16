@@ -10,5 +10,5 @@ Maven
 
 Steps to start the project
 There are two main classes in the project. 
-First, is the HttpClientAsynchronous http client so simply can press the green button ti run.
+First, is the HttpClientAsynchronous http client so simply can press the green button to run.
 Second, class is HttpClientSynchronous. Do the same thing as first.
