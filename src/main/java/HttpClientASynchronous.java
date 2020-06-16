@@ -7,8 +7,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
+import java.util.stream.Collectors;
 public class HttpClientASynchronous {
 
     private static HttpClient client = HttpClient.newHttpClient();
@@ -47,6 +49,18 @@ public class HttpClientASynchronous {
             final Response responseInObject = Utils.getResponseInObject(response, Response.class);
             System.out.println("Delete Response: " + responseInObject);
         });
+
+        // Multiple request
+        List<URI> uriList = new ArrayList();
+        uriList.add(URI.create(Constants.GET_URL));
+        uriList.add(URI.create(Constants.GET_URL));
+
+        System.out.println("multiple request: ");
+        final List<CompletableFuture<String>> reponseOfConcurrentRequest = concurrentCalls(uriList);
+
+        for (CompletableFuture<String> reponse : reponseOfConcurrentRequest) {
+            System.out.println(reponse.get());
+        }
 
         // If you are not able to see the time please increase the sleep timeout time.
         Thread.sleep(Constants.TIMEOUT_IN_MILI_SECONF);
@@ -110,5 +124,16 @@ public class HttpClientASynchronous {
 
         return client
                 .sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenApply(HttpResponse::body);
+    }
+
+    private static List<CompletableFuture<String>> concurrentCalls(final List<URI> urlList) {
+
+        return urlList.stream()
+                .map(url -> client.sendAsync(
+                        HttpRequest.newBuilder(url)
+                                .GET().build(),
+                        HttpResponse.BodyHandlers.ofString())
+                        .thenApply(response -> response.body()))
+                .collect(Collectors.toList());
     }
 }

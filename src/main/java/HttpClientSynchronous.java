@@ -2,7 +2,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import common.Constants;
 import common.Utils;
-import domain.Request;
 import domain.Response;
 
 import java.io.IOException;
@@ -62,11 +61,11 @@ public class HttpClientSynchronous {
         }
 
         // Multiple request
-        List<URI> ui = new ArrayList();
-        ui.add(URI.create(Constants.GET_URL));
-        ui.add(URI.create(Constants.GET_URL));
+        List<URI> uriList = new ArrayList();
+        uriList.add(URI.create(Constants.GET_URL));
+        uriList.add(URI.create(Constants.GET_URL));
         System.out.println("multiple request: ");
-        getURIs(ui);
+        multipleRequest(uriList);
 
     }
 
@@ -128,7 +127,7 @@ public class HttpClientSynchronous {
                 .send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public static void getURIs(List<URI> uris) throws IOException {
+    public static void multipleRequest(List<URI> uris) throws IOException {
 
         List<HttpRequest> requests = uris.stream()
                 .map(HttpRequest::newBuilder)
