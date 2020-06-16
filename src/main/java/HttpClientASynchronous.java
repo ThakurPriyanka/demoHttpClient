@@ -17,8 +17,6 @@ public class HttpClientASynchronous {
 
     public static void main(String[] args) throws Exception {
 
-        //client = HttpClient.newHttpClient();
-
             //GET Request
             final String url = "http://httpbin.org/get";
             getStringHttpResponse(url).thenAccept(response -> {
